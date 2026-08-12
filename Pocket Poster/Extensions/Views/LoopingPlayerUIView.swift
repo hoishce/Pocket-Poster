@@ -22,7 +22,7 @@ class LoopingPlayerUIView: UIView {
         
         // Setup the player
         playerLayer.player = player
-        playerLayer.videoGravity = .resizeAspectFill
+        playerLayer.videoGravity = .resizeAspect
         layer.addSublayer(playerLayer)
 
         // Create a new player looper with the queue player and template item
