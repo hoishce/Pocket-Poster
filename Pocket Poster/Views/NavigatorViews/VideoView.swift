@@ -48,7 +48,6 @@ struct VideoView: View {
                                 PlayerView(videoURL: movie.url)
                                     .scaledToFill()
                                     .frame(width: geom.size.width * 0.7, height: geom.size.height * 0.8)
-                                    .clipped()
                                 VStack {
                                     Text(dateFormatter.string(from: currentDate))
                                         .shadow(radius: 10)
