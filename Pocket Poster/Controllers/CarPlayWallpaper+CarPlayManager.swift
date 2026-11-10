@@ -139,16 +139,16 @@ class CarPlayManager {
         }
         
         let cacheRel = "\(appHash)/Library/Caches/MappedImageCache/com.apple.CarPlayApp.wallpaper-images"
-        if SymHandler.prefersBadQuery {
-            let destPath = BadQuery.carPlayCachePath(appHash: appHash)
+        if SymHandler.prefersSandboxEscape {
+            let destPath = SandboxEscape.carPlayCachePath(appHash: appHash)
             do {
-                try SymHandler.writeFilesViaBadQuery(toDirectory: destPath, files: toRemove)
+                try SymHandler.writeFilesViaEscape(toDirectory: destPath, files: toRemove)
                 // remove local staging copies after successful write
                 for imgURL in toRemove {
                     try? FileManager.default.removeItem(at: imgURL)
                 }
             } catch {
-                print("bad_query CarPlay failed, falling back to symlink: \(error)")
+                print("worse_query CarPlay failed, falling back to symlink: \(error)")
                 let _ = try SymHandler.createAppSymlink(for: cacheRel)
                 for imgURL in toRemove {
                     try FileManager.default.trashItem(at: imgURL, resultingItemURL: nil)

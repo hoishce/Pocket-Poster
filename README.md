@@ -4,7 +4,7 @@
 
 <div align="center">
   <h1><b>Pocket Poster</b></h1>
-  <p><i>Custom PosterBoard Wallpapers for iOS 17+ · bad_query for iOS 26–27.0b4</i></p>
+  <p><i>Custom PosterBoard Wallpapers for iOS 17+ · worse_query for iOS 26–27.2</i></p>
   <p>Maintained / iOS 27 port by <a href="https://github.com/Mak5er"><b>Mak5er</b></a></p>
 </div>
 
@@ -21,13 +21,16 @@ git tag v3.2.2 && git push origin v3.2.2
 
 ## Getting Started
 
-### iOS 26 / 27.0b4 (bad_query)
-On versions where [bad_query][badQueryGitHub] works, **no computer is required**:
-1. Install the IPA (sideload with TrollStore / SideStore / etc.).
+### iOS 26 / 27.2 (worse_query)
+On versions where [worse_query][worseQueryGitHub] works (iOS 26.0–26.7.2 and 27.0–27.2.x), **no computer is required**. The app must be signed with a provisioning profile that contains an **App Group** — worse_query uses that container to place its symlink and obtain the sandbox extension. Signed IPAs produced with the included `sign_personal.sh` already carry the profile's App Groups.
+
+1. Install the IPA (sideload with your signer of choice; the profile needs an App Group).
 2. Settings → **Detect On-Device** (or just hit Apply — hash auto-detects).
 3. Select tendies / video → **Apply** → device does a **full respring** (Frontboard + Backboard).
 
-**Reset Collections** wipes PosterBoard descriptors via bad_query, then full resprings the same way.
+If no App Group entitlement is present the app reports it explicitly; on iOS 26 the legacy bad_query route is used as a fallback.
+
+**Reset Collections** wipes PosterBoard descriptors via worse_query, then full resprings the same way.
 
 ### Older iOS (legacy .Trash exploit)
 You will need a computer to get the App Hash/UUID.
@@ -40,13 +43,13 @@ Community-made wallpapers can be found on the [official Cowabun.ga site][Cowabun
 <br>Join the [Cowabunga Discord Server][CowabungaDiscord] for additional help.
 
 ## Credits
-- **[Mak5er][Mak5erGitHub]** — bad_query integration, iOS 27 port, full respring, on-device detect
+- **[Mak5er][Mak5erGitHub]** — worse_query integration, iOS 27.2 port, full respring, on-device detect
 - [LeminLimez][LeminGitHub] — original Pocket Poster
 - Translations crowdsourced using [POEditor][POEditorJoin]
 - [PosterRestore][PosterRestoreDiscord] for their help with PosterBoard
 - [dootskyre][dootskyreX] for the fallback shortcut
 - [Nathan][NathanGitHub] and [DuyKhanhTran][DuyKhanhTranGitHub] for the .Trash exploit
-- [forcequitOS][badQueryGitHub] for bad_query (iOS 26/27 sandbox escape)
+- [forcequitOS][worseQueryGitHub] for worse_query (iOS 26/27 sandbox escape)
 - [SerStars][SerStarsX] for creating the website
 
 [CowabungaWallpapersPage]: https://cowabun.ga/wallpapers
@@ -62,3 +65,4 @@ Community-made wallpapers can be found on the [official Cowabun.ga site][Cowabun
 [DuyKhanhTranGitHub]: https://github.com/khanhduytran0
 [SerStarsX]: https://x.com/SerStars
 [badQueryGitHub]: https://github.com/forcequitOS/bad_query
+[worseQueryGitHub]: https://github.com/forcequitOS/worse_query

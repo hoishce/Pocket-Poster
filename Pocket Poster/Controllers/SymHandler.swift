@@ -34,9 +34,9 @@ class SymHandler {
         return getLCDocumentsDirectory().appendingPathComponent(".Trash", conformingTo: .symbolicLink)
     }
     
-    /// Prefer bad_query (iOS 26/27 sandbox escape); fall back to .Trash symlink exploit.
-    static var prefersBadQuery: Bool {
-        BadQuery.isAvailable
+    /// Prefer worse_query (iOS 26/27 sandbox escape); fall back to .Trash symlink exploit.
+    static var prefersSandboxEscape: Bool {
+        SandboxEscape.isAvailable
     }
     
     // MARK: Symlink Creation (legacy exploit for older iOS)
@@ -69,19 +69,20 @@ class SymHandler {
         return try createAppSymlink(for: "\(appHash)/Library/Application Support/PRBPosterExtensionDataStore/\(extVer)/Extensions/\(ext)/descriptors")
     }
     
-    // MARK: Direct write via bad_query
-    
-    /// Copy descriptor folders into PosterBoard descriptors using sandbox escape.
-    static func writeDescriptorsViaBadQuery(appHash: String, ext: String, descriptorFolders: [URL]) throws {
-        let destPath = BadQuery.descriptorsPath(appHash: appHash, ext: ext)
-        print("bad_query writing to \(destPath)")
-        
-        // Ensure descriptors directory exists (open parent chain if needed)
-        try BadQuery.ensureDirectory(at: destPath)
-        
-        let handle = try BadQuery.consume(path: destPath, create: true)
+    // MARK: Direct write via worse_query
+
+    /// Copy descriptor folders into PosterBoard descriptors using the sandbox escape.
+    static func writeDescriptorsViaEscape(appHash: String, ext: String, descriptorFolders: [URL]) throws {
+        let destPath = SandboxEscape.descriptorsPath(appHash: appHash, ext: ext)
+        print("worse_query writing to \(destPath)")
+
+        // Make sure the extension data store exists (PosterBoard creates it on boot).
+        let containerRoot = SandboxEscape.applicationContainerPath(appHash: appHash)
+        try SandboxEscape.ensureDirectory(at: destPath, containerRoot: containerRoot)
+
+        let handle = try SandboxEscape.consume(path: destPath, create: true)
         defer { handle.release() }
-        
+
         let fm = FileManager.default
         for descr in descriptorFolders {
             guard descr.lastPathComponent != "__MACOSX" else { continue }
@@ -93,13 +94,13 @@ class SymHandler {
             try fm.copyItem(at: descr, to: destURL)
         }
     }
-    
-    /// Copy files into an absolute directory under an app container via bad_query.
-    static func writeFilesViaBadQuery(toDirectory destPath: String, files: [URL]) throws {
-        try BadQuery.ensureDirectory(at: destPath)
-        let handle = try BadQuery.consume(path: destPath, create: true)
+
+    /// Copy files into an absolute directory under an app container via worse_query.
+    static func writeFilesViaEscape(toDirectory destPath: String, files: [URL]) throws {
+        try SandboxEscape.ensureDirectory(at: destPath)
+        let handle = try SandboxEscape.consume(path: destPath, create: true)
         defer { handle.release() }
-        
+
         let fm = FileManager.default
         for file in files {
             let destURL = URL(fileURLWithPath: destPath).appendingPathComponent(file.lastPathComponent)

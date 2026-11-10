@@ -30,16 +30,18 @@ struct SettingsView: View {
                             .font(.system(.body, design: .monospaced))
                     }
                     
-                    if SymHandler.prefersBadQuery {
-                        Text("bad_query available — on-device detect works (no PC).")
+                    if SymHandler.prefersSandboxEscape {
+                        Text(SandboxEscape.isUsingWorseQuery
+                             ? "worse_query available — on-device detect works (no PC). App Group: \(SandboxEscape.appGroupIdentifier ?? "unknown")"
+                             : "bad_query fallback available (iOS 26) — on-device detect works (no PC).")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                     
                     HStack {
                         Spacer()
-                        // On-device detect via bad_query (iOS 26/27)
-                        if SymHandler.prefersBadQuery {
+                        // On-device detect via worse_query (iOS 26/27)
+                        if SymHandler.prefersSandboxEscape {
                             Button(action: {
                                 detectOnDevice()
                             }) {
@@ -63,7 +65,7 @@ struct SettingsView: View {
                             }
                             startWaitForHash()
                         }) {
-                            Text(SymHandler.prefersBadQuery ? "Detect via Nugget" : "Detect")
+                            Text(SymHandler.prefersSandboxEscape ? "Wait for Nugget" : "Detect")
                         }
                         .foregroundStyle(.green)
                         .onChange(of: checkingForHash) { _ in
@@ -161,12 +163,12 @@ struct SettingsView: View {
             
             // MARK: Credits
             Section {
-                LinkCell(imageName: "Mak5er", url: "https://github.com/Mak5er", title: "Mak5er", contribution: "bad_query port · iOS 27 build", circle: true)
+                LinkCell(imageName: "Mak5er", url: "https://github.com/Mak5er", title: "Mak5er", contribution: "worse_query port · iOS 27.2 build", circle: true)
                 LinkCell(imageName: "leminlimez", url: "https://github.com/leminlimez", title: "LeminLimez", contribution: NSLocalizedString("Main Developer", comment: "leminlimez's contribution"), circle: true)
                 LinkCell(imageName: "serstars", url: "https://github.com/SerStars", title: "SerStars", contribution: NSLocalizedString("Website Designer", comment: ""), circle: true)
                 LinkCell(imageName: "Nathan", url: "https://github.com/verygenericname", title: "Nathan", contribution: NSLocalizedString("Exploit (.Trash)", comment: ""), circle: true)
                 LinkCell(imageName: "duy", url: "https://github.com/khanhduytran0", title: "DuyKhanhTran", contribution: NSLocalizedString("Exploit (.Trash)", comment: ""), circle: true)
-                LinkCell(imageName: "sky", url: "https://github.com/forcequitOS/bad_query", title: "forcequitOS", contribution: "bad_query (iOS 26/27)", circle: false)
+                LinkCell(imageName: "sky", url: "https://github.com/forcequitOS/worse_query", title: "forcequitOS", contribution: "worse_query (iOS 26/27)", circle: false)
                 LinkCell(imageName: "sky", url: "https://bsky.app/profile/did:plc:xykfeb7ieeo335g3aly6vev4", title: "dootskyre", contribution: NSLocalizedString("Fallback Shortcut Creator", comment: ""), circle: true)
                 LinkCell(imageName: "POEditor", url: "https://poeditor.com/join/project/MPZOsunwVj", title: NSLocalizedString("Community Translators", comment: ""), contribution: "POEditor")
             } header: {
@@ -175,12 +177,12 @@ struct SettingsView: View {
         }
     }
     
-    /// Scan containers on-device with bad_query / fsgetpath — no computer needed.
+    /// Scan containers on-device with worse_query / fsgetpath — no computer needed.
     func detectOnDevice() {
         detectingOnDevice = true
         UIApplication.shared.alert(
             title: "Scanning containers…",
-            body: "Looking for PosterBoard via bad_query. This may take a moment.",
+            body: "Looking for PosterBoard via worse_query. This may take a moment.",
             animated: true,
             withButton: false
         )
@@ -191,13 +193,13 @@ struct SettingsView: View {
             var errMsg: String?
             
             do {
-                pb = try BadQuery.findPosterBoardHash()
+                pb = try SandboxEscape.findPosterBoardHash()
             } catch {
                 errMsg = error.localizedDescription
             }
             
             if CarPlayManager.supportsCarPlay() {
-                cp = try? BadQuery.findCarPlayHash()
+                cp = try? SandboxEscape.findCarPlayHash()
             }
             
             // Always show a closeable result alert (loading alert has no OK button —

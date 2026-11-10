@@ -58,12 +58,12 @@ struct ContentView: View {
                 }
                 
                 Section {
-                    if pbHash == "" && !SymHandler.prefersBadQuery {
+                    if pbHash == "" && !SymHandler.prefersSandboxEscape {
                         Text("Enter your PosterBoard app hash in Settings.")
                     } else {
                         VStack {
-                            if pbHash == "" && SymHandler.prefersBadQuery {
-                                Text("No hash set — will auto-detect via bad_query on Apply.")
+                            if pbHash == "" && SymHandler.prefersSandboxEscape {
+                                Text("No hash set — will auto-detect via worse_query on Apply.")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -77,7 +77,7 @@ struct ContentView: View {
                                             var hash = pbHash
                                             if hash.isEmpty {
                                                 UIApplication.shared.change(title: NSLocalizedString("Applying Wallpapers...", comment: ""), body: "Detecting PosterBoard container…")
-                                                hash = try BadQuery.findPosterBoardHash()
+                                                hash = try SandboxEscape.findPosterBoardHash()
                                                 DispatchQueue.main.async { pbHash = hash }
                                             }
                                             try pbManager.applyTendies(appHash: hash)
@@ -108,8 +108,8 @@ struct ContentView: View {
                             Button(action: {
                                 UIApplication.shared.confirmAlert(
                                     title: NSLocalizedString("Reset Collections", comment: ""),
-                                    body: SymHandler.prefersBadQuery
-                                        ? "This will wipe custom PosterBoard descriptors via bad_query, then respring."
+                                    body: SymHandler.prefersSandboxEscape
+                                        ? "This will wipe custom PosterBoard descriptors via worse_query, then respring."
                                         : NSLocalizedString("Do you want to reset collections?", comment: ""),
                                     onOK: {
                                         UIApplication.shared.alert(
@@ -121,8 +121,8 @@ struct ContentView: View {
                                         DispatchQueue.global(qos: .userInitiated).async {
                                             do {
                                                 var hash = pbHash
-                                                if hash.isEmpty && SymHandler.prefersBadQuery {
-                                                    hash = try BadQuery.findPosterBoardHash()
+                                                if hash.isEmpty && SymHandler.prefersSandboxEscape {
+                                                    hash = try SandboxEscape.findPosterBoardHash()
                                                     DispatchQueue.main.async { pbHash = hash }
                                                 }
                                                 guard !hash.isEmpty else {

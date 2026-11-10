@@ -51,11 +51,11 @@ class PosterBoardManager: ObservableObject {
         return false
     }
     
-    /// Wipe PosterBoard custom descriptor collections using bad_query (real delete).
+    /// Wipe PosterBoard custom descriptor collections using worse_query (real delete).
     /// Falls back to language-toggle trick on older exploit path.
     func resetCollections(appHash: String) throws {
-        if SymHandler.prefersBadQuery {
-            try wipeDescriptorsViaBadQuery(appHash: appHash)
+        if SymHandler.prefersSandboxEscape {
+            try wipeDescriptorsViaEscape(appHash: appHash)
             return
         }
         
@@ -69,18 +69,23 @@ class PosterBoardManager: ObservableObject {
     }
     
     /// Delete everything under each PRBPosterExtensionDataStore/*/Extensions/*/descriptors.
-    private func wipeDescriptorsViaBadQuery(appHash: String) throws {
+    private func wipeDescriptorsViaEscape(appHash: String) throws {
         let ver = SymHandler.getExtensionVersion()
-        let extensionsRoot = BadQuery.applicationContainerPath(appHash: appHash)
+        let extensionsRoot = SandboxEscape.applicationContainerPath(appHash: appHash)
             + "/Library/Application Support/PRBPosterExtensionDataStore/\(ver)/Extensions"
         
-        // Open parent with sandbox extension
-        let rootHandle = try BadQuery.consume(path: extensionsRoot, create: true)
+        // Open parent with sandbox extension. A missing path simply means there
+        // is nothing to wipe yet.
+        guard let rootHandle = try? SandboxEscape.consume(path: extensionsRoot, create: true) else {
+            if !SandboxEscape.isAvailable {
+                throw SandboxEscapeError.unavailable
+            }
+            return
+        }
         defer { rootHandle.release() }
         
         let fm = FileManager.default
         guard fm.fileExists(atPath: extensionsRoot) else {
-            // Nothing to wipe — treat as success (collections already empty / never set up)
             return
         }
         
@@ -92,7 +97,7 @@ class PosterBoardManager: ObservableObject {
                 .appending("/descriptors")
             
             // Ensure we hold an extension on the descriptors dir itself
-            let descHandle = try? BadQuery.consume(path: descriptorsPath, create: true)
+            let descHandle = try? SandboxEscape.consume(path: descriptorsPath, create: true)
             defer { descHandle?.release() }
             
             guard fm.fileExists(atPath: descriptorsPath) else { continue }
@@ -273,9 +278,9 @@ class PosterBoardManager: ObservableObject {
             SymHandler.cleanup()
         }
         
-        let useBadQuery = SymHandler.prefersBadQuery
-        if useBadQuery {
-            UIApplication.shared.change(title: NSLocalizedString("Applying Wallpapers...", comment: ""), body: "bad_query sandbox escape…")
+        let useSandboxEscape = SymHandler.prefersSandboxEscape
+        if useSandboxEscape {
+            UIApplication.shared.change(title: NSLocalizedString("Applying Wallpapers...", comment: ""), body: "worse_query sandbox escape…")
         }
         
         for (ext, descriptorsList) in extList {
@@ -289,13 +294,13 @@ class PosterBoardManager: ObservableObject {
                 }
             }
             
-            if useBadQuery {
-                // iOS 26/27: direct write via container_query sandbox extension
+            if useSandboxEscape {
+                // iOS 26/27: direct write via the container_query sandbox extension
                 do {
-                    try SymHandler.writeDescriptorsViaBadQuery(appHash: appHash, ext: ext, descriptorFolders: foldersToWrite)
+                    try SymHandler.writeDescriptorsViaEscape(appHash: appHash, ext: ext, descriptorFolders: foldersToWrite)
                 } catch {
-                    // Fall back to legacy .Trash symlink if bad_query path fails
-                    print("bad_query apply failed, falling back to symlink: \(error)")
+                    // Fall back to legacy .Trash symlink if the escape path fails
+                    print("worse_query apply failed, falling back to symlink: \(error)")
                     try applyDescriptorsViaSymlink(appHash: appHash, ext: ext, folders: foldersToWrite)
                 }
             } else {
