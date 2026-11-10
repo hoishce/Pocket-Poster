@@ -5,19 +5,18 @@
 <div align="center">
   <h1><b>Pocket Poster</b></h1>
   <p><i>Custom PosterBoard Wallpapers for iOS 17+ · worse_query for iOS 26–27.2</i></p>
-  <p>Maintained / iOS 27 port by <a href="https://github.com/Mak5er"><b>Mak5er</b></a></p>
+  <p>Original project by <a href="https://github.com/leminlimez"><b>leminlimez</b></a> · bad_query port by <a href="https://github.com/Mak5er"><b>Mak5er</b></a> · worse_query port by <a href="https://git.jbjflab.top/admin"><b>admin</b></a></p>
 </div>
+
+## Origin
+
+This repository is a fork of [**Mak5er/Pocket-Poster**](https://github.com/Mak5er/Pocket-Poster) on GitHub, which in turn is a fork of the original [**leminlimez/Pocket-Poster**](https://github.com/leminlimez/Pocket-Poster). The `worse_query` port, iOS 27.2 support, and the releases published here are maintained by [admin](https://git.jbjflab.top/admin).
 
 ## Download
 
-Latest IPA: [**Releases**](https://github.com/Mak5er/Pocket-Poster/releases/latest)
+Latest IPA: [**Releases**](https://git.jbjflab.top/admin/Pocket-Poster/releases)
 
-CI builds an unsigned IPA on every push to `main` and publishes a GitHub Release when you push a tag like `v3.2.2` (or run **Release IPA** from Actions).
-
-```bash
-# cut a release from your machine
-git tag v3.2.2 && git push origin v3.2.2
-```
+Build an unsigned IPA locally with `./ipabuild.sh`, then sign it with a provisioning profile that includes an **App Group** before installing.
 
 ## Getting Started
 
