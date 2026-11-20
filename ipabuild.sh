@@ -42,6 +42,10 @@ fi
 mkdir Payload
 cp -r "${APPLICATION_NAME}.app" "Payload/${APPLICATION_NAME}.app"
 strip "Payload/${APPLICATION_NAME}.app/${APPLICATION_NAME}"
+# Ad-hoc sign with our entitlements so the App Group survives SideStore
+# re-signing (same pattern as Erosion's ipabuild.sh). Must run AFTER strip,
+# which would otherwise invalidate the signature.
+codesign --force --sign - --entitlements "$WORKING_LOCATION/Pocket Poster/Pocket Poster.entitlements" --generate-entitlement-der --timestamp=none "Payload/${APPLICATION_NAME}.app"
 # quiet zip for CI logs; name with underscore for download URLs
 zip -qr "Pocket_Poster.ipa" Payload
 # keep legacy name too
